@@ -1,0 +1,15 @@
+{
+  "name": "personal-assistant",
+  "version": "1.0.0",
+  "description": "This is personal assistant which create meeting in google calendar and fetch meeting from it",
+  "license": "ISC",
+  "author": "Devendra Rokade",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
