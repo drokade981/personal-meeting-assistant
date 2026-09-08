@@ -2,6 +2,7 @@ import { tool } from "@langchain/core/tools";
 import z from "zod";
 import { google } from "googleapis";
 import dotenv from "dotenv";
+import { ca } from "zod/locales";
 dotenv.config();
 
 const oauth2Client = new google.auth.OAuth2(
@@ -11,25 +12,81 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 oauth2Client.setCredentials({
-    access_token: process.env.GOOGLE_ACCESS_TOKEN,
-    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+    access_token: process.env.GOOGLE_ACCESS_TOKEN as string,
+    refresh_token: process.env.GOOGLE_REFRESH_TOKEN as string,
 });
 const calendar = google.calendar({version: 'v3', auth: oauth2Client});
 
+// type EventData = {    
+//     summary: string;
+//     start: {
+//         dateTime: string;
+//         timeZone: string;
+//     };
+//     end: {
+//         dateTime: string;
+//         timeZone: string;
+//     };
+//     attendees: attendees[];
+// };
+type EventData = z.infer<typeof createEventSchema>;
+type attendees= [
+        email: string,
+        displayName: string
+];
+const createEventSchema = z.object({
+    summary: z.string().describe('The title of the event'),
+    start: z.object({
+        dateTime: z.string().describe('The date time of start of the event.'),
+        timeZone: z.string().describe('Current IANA timezone string.'),
+    }),
+    end: z.object({
+        dateTime: z.string().describe('The date time of end of the event.'),
+        timeZone: z.string().describe('Current IANA timezone string.'),
+    }),
+    attendees: z.array(
+        z.object({
+            email: z.string().describe('The email of the attendee'),
+            displayName: z.string().describe('Then name of the attendee.'),
+        })
+    ),
+});
 
 export const createCalendarEvents = tool(
-    async() => {
+    async(eventData) => {
+        const {summary, start, end, attendees} = eventData as EventData;
         // google calendar logic
-        return 'the meeting has been created';
+        const response = await calendar.events.insert({
+            calendarId: 'primary',
+            conferenceDataVersion: 1,
+            requestBody: {
+                summary,
+                start,
+                end,
+                attendees,
+                conferenceData: {
+                    createRequest: {
+                        requestId: `meet-${Date.now()}`,
+                        conferenceSolutionKey: {
+                            type: 'hangoutsMeet',
+                        },
+                    },
+                },
+            }
+        });
+        if (response.status === 200) {
+            return 'Event created successfully!';
+        }
+        return `Failed to create event`;
     },
     {
         name : 'create_calendar_events',
         description : 'Create a new calendar event',
-        schema: z.object({
-            query: z.string().describe('The details of the event to create'),
-        })
-    }
-)
+        schema: createEventSchema,
+            
+    });
+    
+
 
 type Params = {
     q: string;
