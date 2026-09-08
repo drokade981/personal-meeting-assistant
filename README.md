@@ -25,6 +25,11 @@ Create a `.env` file in the project root:
 
 ```env
 GROQ_API_KEY=your_groq_api_key
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=
+GOOGLE_ACCESS_TOKEN=
+GOOGLE_REFRESH_TOKEN=
 ```
 
 ## Run

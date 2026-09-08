@@ -57,7 +57,7 @@ async function main() {
     const result = await app.invoke(
         {
             messages: [
-                { role: 'user', content: 'Create a meeting with John' },
+                { role: 'user', content: 'get my all calendar events for september month' },
             ],
         },
     );
