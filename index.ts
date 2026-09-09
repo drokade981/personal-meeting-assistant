@@ -1,4 +1,5 @@
-import { ChatGroq } from "@langchain/groq"
+import { ChatGroq } from "@langchain/groq";
+import readline from "node:readline/promises";
 import { createCalendarEvents, getCalendarEvents } from "./tools.js";
 import { END, MessagesAnnotation, StateGraph  } from "@langchain/langgraph";
 import type { AIMessage } from "@langchain/core/messages";
@@ -54,14 +55,31 @@ const graph = new StateGraph(MessagesAnnotation)
 const app = graph.compile();
 
 async function main() {
-    const result = await app.invoke(
-        {
-            messages: [
-                { role: 'user', content: 'create a meeting with chetan(er.devendra.rokade@gmail.com) today at 9PM for ABDM' },
-            ],
-        },
-    );
-    console.log('Assistant', result.messages[result.messages.length -1]);
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    while(true) {
+        const userInput = await rl.question('You: ');
+        if(userInput.toLowerCase() === 'exit') {
+            console.log('Exiting...');
+            break;
+        }
+        const result = await app.invoke(
+            {
+                messages: [
+                    { 
+                        role: 'user', 
+                        content: userInput,
+                        // 'create a meeting with chetan(er.devendra.rokade@gmail.com) today at 9PM for ABDM' 
+                    },
+                ],
+            },
+        );
+        console.log('Assistant', result.messages[result.messages.length -1]);
+    }
+    rl.close();
 }
 
 main();
