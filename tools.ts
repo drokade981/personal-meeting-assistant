@@ -97,16 +97,14 @@ type Params = {
 export const getCalendarEvents = tool(
     async(params) => {
 
-        console.log(params);
         const { q, timeMin, timeMax } = params as Params;
         
-        // google calendar logic
         try {   
             // google calendar logic
             const response = await calendar.events.list({
                 calendarId: 'primary',
                 q,                
-                timeMin: (new Date()).toUTCString(),
+                timeMin: timeMin,
                 timeMax: timeMax,
                 // showDeleted: false,
                 // singleEvents: true,
@@ -131,7 +129,6 @@ export const getCalendarEvents = tool(
                     eventType: event.eventType,
                 };
             });
-            console.log('response', result);
             return JSON.stringify(result, null, 2);
         } catch (error) {
             console.error('Error fetching calendar events:', error);
