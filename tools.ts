@@ -86,8 +86,6 @@ export const createCalendarEvents = tool(
             
     });
     
-
-
 type Params = {
     q: string;
     timeMin?: string;
@@ -141,8 +139,8 @@ export const getCalendarEvents = tool(
         description : 'Fetch existing calendar events',
         schema: z.object({
             q: z.string().describe('The query to be used to get events from google calendar. It can be one of these values: summary, description, location, attendees display name, attendees email, organiser\'s name, organiser\'s email'),
-            timeMin: z.string().optional().describe('The minimum start time of the events to fetch in UTC format'),
-            timeMax: z.string().optional().describe('The maximum end time of the events to fetch in UTC format'),
+            timeMin: z.string().optional().describe('The minimum start time of the events to get events'),
+            timeMax: z.string().optional().describe('The maximum end time of the events to get events'),
         })
     }
 )

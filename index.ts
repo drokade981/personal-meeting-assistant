@@ -65,9 +65,17 @@ async function main() {
             console.log('Exiting...');
             break;
         }
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const currentDateTime = new Date().toLocaleString("sv-SE").replace(',', 'T');
         const result = await app.invoke(
             {
                 messages: [
+                    {
+                        role: 'system', 
+                        content: `You are a helpful assistant. 
+                        current DateTime: ${currentDateTime}
+                        current timezone: ${timezone}`,
+                    },
                     { 
                         role: 'user', 
                         content: userInput,
