@@ -1,14 +1,14 @@
 import { ChatGroq } from "@langchain/groq";
 import readline from "node:readline/promises";
 import { createCalendarEvents, getCalendarEvents } from "./tools.js";
-import { END, MessagesAnnotation, StateGraph  } from "@langchain/langgraph";
+import { END, MessagesAnnotation, StateGraph, MemorySaver } from "@langchain/langgraph";
 import type { AIMessage } from "@langchain/core/messages";
 import dotenv from "dotenv";
 import { ToolNode } from "@langchain/langgraph/prebuilt";
 
 dotenv.config();
 
-
+const checkpointer = new MemorySaver();
 
 const tools:any = [createCalendarEvents, getCalendarEvents];
 
@@ -21,7 +21,6 @@ const model = new ChatGroq({
 
 async function callModel(state: typeof MessagesAnnotation.State) {
     const response = await model.invoke(state.messages);
-    console.log(response);
     return { messages: [response ]};
 }
 
@@ -52,14 +51,14 @@ const graph = new StateGraph(MessagesAnnotation)
         tools: 'tools'
     });
 
-const app = graph.compile();
+const app = graph.compile({ checkpointer });
 
 async function main() {
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
     });
-
+    let config = { configurable : { thread_id: '1' } };
     while(true) {
         const userInput = await rl.question('You: ');
         if(userInput.toLowerCase() === 'exit') {
@@ -75,9 +74,9 @@ async function main() {
                         // 'create a meeting with chetan(er.devendra.rokade@gmail.com) today at 9PM for ABDM' 
                     },
                 ],
-            },
+            }, config
         );
-        console.log('Assistant', result.messages[result.messages.length -1]);
+        console.log('Assistant', result.messages[result.messages.length -1]?.content);
     }
     rl.close();
 }
